@@ -246,8 +246,8 @@ if [ "$GLPI_REDIS_ENABLE" = "Yes" ]; then
 else
     cd ${GLPI_DIR}
     echo "[INFO] Configuration : desactivation de Redis pour GLPI"
-    echo "[CMD] su -s /bin/bash www-data -c \"php bin/console cache:configure --context core --dsn redis://${GLPI_REDIS_SERVER}:6379/1 || false\""
-    su -s /bin/bash www-data -c "php bin/console cache:configure --context core --dsn redis://${GLPI_REDIS_SERVER}:6379/1 || false"
+    echo "[CMD] su -s /bin/bash www-data -c \"php bin/console cache:configure --context core --use-default|| false\""
+    su -s /bin/bash www-data -c "php bin/console cache:configure --context core --use-default || false"
 fi
 
 #

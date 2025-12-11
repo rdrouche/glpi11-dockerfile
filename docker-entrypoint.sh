@@ -65,6 +65,7 @@ GLPI_CHECK_REQUIREMENT="${GLPI_CHECK_REQUIREMENT:-No}"
 GLPI_REDIS_ENABLE="${GLPI_REDIS_ENABLE:-No}"
 GLPI_REDIS_SERVER="${GLPI_REDIS_SERVER:-glpi-redis}"
 GLPI_TIMEZONE_CONFIG="${GLPI_TIMEZONE_CONFIG:-Yes}"
+GLPI_DISABLE_MAINTENANCE="${GLPI_DISABLE_MAINTENANCE:-No}"
 
 echo "✔️  PHP_MEMORY_LIMIT = $PHP_MEMORY_LIMIT"
 echo "✔️  PHP_UPLOAD_MAX_FILESIZE = $PHP_UPLOAD_MAX_FILESIZE"
@@ -230,12 +231,34 @@ else
     echo "✅  GLPI est deja a jour"
 fi
 
+# Application des droits sur le dossier
+echo "[INFO] Verification des droits sur le dossier ${GLPI_DIR} ..."
+echo "[CMD] chown -R www-data:www-data ${GLPI_DIR}"
+cd ${GLPI_DIR}
+chown -R www-data:www-data "${GLPI_DIR}"
+
+
+if [ "${GLPI_CHECK_REQUIREMENT}" = "Yes" ]; then 
+    echo "[INFO] Verification des prequis"
+    echo "[CMD] su -s /bin/bash www-data -c \"php bin/console glpi:system:check_requirements\""
+    cd ${GLPI_DIR}
+    su -s /bin/bash www-data -c "php bin/console glpi:system:check_requirements"
+fi
+
 if [ "$GLPI_UPDATE_DB" = "Yes" ]; then
     # Maj base de donnee si upgrade des fichiers.
     echo "[INFO] Mise a jour de la base de donnee GLPI ..."
     cd ${GLPI_DIR}
     echo "[CMD] su -s /bin/bash www-data -c \"php bin/console db:update --force --no-telemetry --no-interaction\""
     su -s /bin/bash www-data -c "php bin/console db:update --force --no-telemetry --no-interaction"
+fi
+
+if [ "$GLPI_DISABLE_MAINTENANCE" = "Yes" ]; then
+    # On sort GLPI du mode maintenance.
+    echo "[INFO] Sortie du mode maintenance ..."
+    cd ${GLPI_DIR}
+    echo "[CMD] su -s /bin/bash www-data -c \"php bin/console glpi:maintenance:disable\""
+    su -s /bin/bash www-data -c "php bin/console glpi:maintenance:disable"
 fi
 
 if [ "$GLPI_REDIS_ENABLE" = "Yes" ]; then
@@ -250,24 +273,11 @@ else
     su -s /bin/bash www-data -c "php bin/console cache:configure --context core --use-default || false"
 fi
 
-#
-echo "[INFO] Verification des droits sur le dossier ${GLPI_DIR} ..."
-echo "[CMD] chown -R www-data:www-data ${GLPI_DIR}"
-cd ${GLPI_DIR}
-chown -R www-data:www-data "${GLPI_DIR}"
-
 if [ "${GLPI_TIMEZONE_CONFIG}" = "Yes" ]; then
     echo "[INFO] GLPI Timezone Database enable"
     echo "[CMD] su -s /bin/bash www-data -c \"php bin/console database:enable_timezones\""
     cd ${GLPI_DIR}
     su -s /bin/bash www-data -c "php bin/console database:enable_timezones"
-fi
-
-if [ "${GLPI_CHECK_REQUIREMENT}" = "Yes" ]; then 
-    echo "[INFO] Verification des prequis"
-    echo "[CMD] su -s /bin/bash www-data -c \"php bin/console glpi:system:check_requirements\""
-    cd ${GLPI_DIR}
-    su -s /bin/bash www-data -c "php bin/console glpi:system:check_requirements"
 fi
 
 echo "🚀 Demarrage du conteneur..."

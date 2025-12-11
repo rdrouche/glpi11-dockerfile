@@ -66,6 +66,9 @@ GLPI_REDIS_ENABLE="${GLPI_REDIS_ENABLE:-No}"
 GLPI_REDIS_SERVER="${GLPI_REDIS_SERVER:-glpi-redis}"
 GLPI_TIMEZONE_CONFIG="${GLPI_TIMEZONE_CONFIG:-Yes}"
 GLPI_DISABLE_MAINTENANCE="${GLPI_DISABLE_MAINTENANCE:-No}"
+# URI
+GLPI_HTTP_PROTOCOLE="${GLPI_HTTP_PROTOCOLE:-http}"
+GLPI_FORCE_APPLY_URI="${GLPI_FORCE_APPLY_URI:-No}"
 
 echo "✔️  PHP_MEMORY_LIMIT = $PHP_MEMORY_LIMIT"
 echo "✔️  PHP_UPLOAD_MAX_FILESIZE = $PHP_UPLOAD_MAX_FILESIZE"
@@ -195,7 +198,7 @@ EOF
     echo "Installation automatique de GLPI"
     cd ${GLPI_DIR}
     su -s /bin/bash www-data -c "php bin/console db:install --force --no-telemetry --no-interaction"
-    su -s /bin/bash www-data -c "php bin/console config:set url_base http://$GLPI_DOMAIN"
+    su -s /bin/bash www-data -c "php bin/console config:set url_base ${GLPI_HTTP_PROTOCOLE}://${GLPI_DOMAIN}"
 fi
 
 echo "[INFO] Verification si une mise a jour disponibe"
@@ -260,6 +263,14 @@ if [ "$GLPI_DISABLE_MAINTENANCE" = "Yes" ]; then
     echo "[CMD] su -s /bin/bash www-data -c \"php bin/console glpi:maintenance:disable\""
     su -s /bin/bash www-data -c "php bin/console glpi:maintenance:disable"
 fi
+
+if [ "$GLPI_FORCE_APPLY_URI" = "Yes" ]; then
+    # Configuration URI GLPI
+    echo "[INFO] Configuration de URL de GLPI : ${GLPI_HTTP_PROTOCOLE}://${GLPI_DOMAIN}"
+    cd ${GLPI_DIR}
+    echo "[INFO] su -s /bin/bash www-data -c \"php bin/console config:set url_base ${GLPI_HTTP_PROTOCOLE}://${GLPI_DOMAIN}\""
+    su -s /bin/bash www-data -c "php bin/console config:set url_base ${GLPI_HTTP_PROTOCOLE}://${GLPI_DOMAIN}"
+fi 
 
 if [ "$GLPI_REDIS_ENABLE" = "Yes" ]; then
     echo "[INFO] Configuration de Redis pour GLPI"

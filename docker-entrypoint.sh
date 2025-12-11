@@ -50,7 +50,8 @@ URI_FALLBACK="${URI_FALLBACK:-https://github.com/glpi-project/glpi/releases/down
 APACHE_CONF="/etc/apache2/sites-available/glpi.conf"
 PHP_CONF_FILE="/etc/php/8.3/fpm/conf.d/90-glpi.ini"
 GLPI_DIR="/var/www/glpi"
-GLPI_CONFIG_FILE="/var/www/glpi/config/config_db.php" 
+GLPI_CONFIG_FILE="/var/www/glpi/config/config_db.php"
+GLPI_UPDATING="/var/www/glpi/config/glpi_updating"
 
 echo "🔧 Application des variables optionnelles..."
 
@@ -69,11 +70,28 @@ GLPI_DISABLE_MAINTENANCE="${GLPI_DISABLE_MAINTENANCE:-No}"
 # URI
 GLPI_HTTP_PROTOCOLE="${GLPI_HTTP_PROTOCOLE:-http}"
 GLPI_FORCE_APPLY_URI="${GLPI_FORCE_APPLY_URI:-No}"
+# HEALTHCHECK
+HEALTHCHECK_DISABLE="${HEALTHCHECK_DISABLE:-No}"
 
 echo "✔️  PHP_MEMORY_LIMIT = $PHP_MEMORY_LIMIT"
 echo "✔️  PHP_UPLOAD_MAX_FILESIZE = $PHP_UPLOAD_MAX_FILESIZE"
 echo "✔️  PHP_MAX_EXECUTION_TIME = $PHP_MAX_EXECUTION_TIME"
 echo "     URI_FALLBACK = $URI_FALLBACK "
+
+if [ -f "$GLPI_UPDATING" ]; then
+    echo " 🔄 GLPI est en cours de mise a jour ..."
+    echo " Healthcheck desactive"
+    $GLPI_UPDATE_DB="Yes"
+    $GLPI_DISABLE_MAINTENANCE="Yes"
+fi
+
+rm -f /var/www/glpi/config/glpi_disable_healthcheck
+if [ "${HEALTHCHECK_DISABLE}" = "Yes" ]; then
+    echo ""
+    echo "[INFO] Desactivation du healthcheck"
+    touch /var/www/glpi/config/glpi_disable_healthcheck
+fi
+
 
 echo "[INFO] Configuration du virtualhost Apache avec le domaine : ${GLPI_DOMAIN}"
 tee ${APACHE_CONF} > /dev/null <<EOF

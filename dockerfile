@@ -50,8 +50,12 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+COPY healthcheck.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck.sh
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD /bin/bash /usr/local/bin/healthcheck.sh
 
-#WORKDIR /var/www/glpi
+WORKDIR /var/www/glpi
 EXPOSE 80
 
 ENTRYPOINT ["docker-entrypoint.sh"]

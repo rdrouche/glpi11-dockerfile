@@ -81,8 +81,8 @@ echo "     URI_FALLBACK = $URI_FALLBACK "
 if [ -f "$GLPI_UPDATING" ]; then
     echo " 🔄 GLPI est en cours de mise a jour ..."
     echo " Healthcheck desactive"
-    $GLPI_UPDATE_DB="Yes"
-    $GLPI_DISABLE_MAINTENANCE="Yes"
+    GLPI_UPDATE_DB="Yes"
+    GLPI_DISABLE_MAINTENANCE="Yes"
 fi
 
 rm -f /var/www/glpi/config/glpi_disable_healthcheck

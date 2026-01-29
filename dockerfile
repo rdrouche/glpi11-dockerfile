@@ -3,7 +3,8 @@ FROM ubuntu:24.04
 LABEL org.opencontainers.image.authors="Romain" \
       com.rdritcom.ubuntu_version="24.04" \
       com.rdritcom.apache2_version="2.4.65" \
-      com.rdritcom.php_version="8.3.28"
+      com.rdritcom.php_version="8.3.30" \
+      com.rdritcom.glpi_version="11.0.5"
 
 RUN apt-get update \
     && apt-get install software-properties-common -yqq \

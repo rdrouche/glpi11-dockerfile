@@ -43,6 +43,7 @@ build:
           -f Dockerfile .
 
         docker push ${IMAGE_NAME}:${TAG_VERSION}
+        docker push ${IMAGE_NAME}:latest
       fi
 
   rules:

@@ -1,20 +1,23 @@
-FROM ubuntu:24.04
+# Debian 13 (Trixie)
+FROM debian:trixie-slim
 
 LABEL org.opencontainers.image.authors="Romain" \
-      com.rdritcom.ubuntu_version="24.04" \
+      com.rdritcom.debian_version="13" \
       com.rdritcom.apache2_version="2.4.65" \
       com.rdritcom.php_version="8.3.30" \
       com.rdritcom.glpi_version="11.0.5"
 
 RUN apt-get update \
-    && apt-get install software-properties-common -yqq \
-    && add-apt-repository -yn ppa:ondrej/apache2 \
-    && add-apt-repository -yn ppa:ondrej/php \
+    && apt-get install lsb-release ca-certificates curl -yqq \
+    # Add Repo
+    && curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
+    && dpkg -i /tmp/debsuryorg-archive-keyring.deb \
+    && sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
+    && sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/apache2/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/apache2.list' \
     && apt-get update \
     && apt-get install -yqq \
         supervisor \
         git \
-        curl \
         mariadb-client \
         apache2 \
         php8.3-fpm \

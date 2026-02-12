@@ -16,11 +16,35 @@ build:
     - docker info
     - docker login -u $CI_HUB_DOCKER_LOGIN -p $CI_HUB_DOCKER_PASSWORD    
   script:
-    - TAG_VERSION=latest
-    - echo "Tag version ${TAG_VERSION:-'Aucun tag trouvé'}"
-    - docker build -t $IMAGE_NAME:$TAG_VERSION -f Dockerfile --no-cache .
-    #- docker push $IMAGE_NAME:$IMAGE_TAG
-    - docker push $IMAGE_NAME:$TAG_VERSION
+    - |
+      TAG_VERSION="$CI_COMMIT_TAG"
+
+      echo "Tag Git détecté : ${TAG_VERSION}"
+
+      if [[ "$TAG_VERSION" =~ ^beta- ]]; then
+        echo "👉 Build BETA (pas de latest)"
+        docker build \
+          -t ${IMAGE_NAME}:${TAG_VERSION} \
+          -f Dockerfile .
+
+        docker push ${IMAGE_NAME}:${TAG_VERSION}
+      elif [[ "$TAG_VERSION" =~ ^ubt24- ]]; then
+        echo "👉 Build Ubuntu version"
+        docker build \
+          -t ${IMAGE_NAME}:${TAG_VERSION} \
+          -f Dockerfile .
+
+        docker push ${IMAGE_NAME}:${TAG_VERSION}
+      else
+        echo "🚀 Build Debian RELEASE (latest mis à jour)"
+        docker build \
+          -t ${IMAGE_NAME}:${TAG_VERSION} \
+          -t ${IMAGE_NAME}:latest \
+          -f Dockerfile .
+
+        docker push ${IMAGE_NAME}:${TAG_VERSION}
+      fi
+
   rules:
     - if: '$CI_COMMIT_TAG'  # Toujours exécuter sur un tag
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    #- if: '$CI_COMMIT_BRANCH == "main"'

@@ -45,7 +45,7 @@ fi
 echo "✅ Variables obligatoire OK"
 
 GITHUB_API="https://api.github.com/repos/glpi-project/glpi/releases/latest" # URI API GITHUB POUR RECUPERER LA DERNIERE VERSION DE GLPI DISPINIBLE
-URI_FALLBACK="${URI_FALLBACK:-https://github.com/glpi-project/glpi/releases/download/11.0.5/glpi-11.0.5.tgz}"
+URI_FALLBACK="${URI_FALLBACK:-https://github.com/glpi-project/glpi/releases/download/11.0.7/glpi-11.0.7.tgz}"
 
 APACHE_CONF="/etc/apache2/sites-available/glpi.conf"
 PHP_CONF_FILE="/etc/php/8.3/fpm/conf.d/90-glpi.ini"

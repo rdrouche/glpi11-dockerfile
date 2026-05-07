@@ -3,9 +3,9 @@ FROM debian:trixie-slim
 
 LABEL org.opencontainers.image.authors="Romain" \
       com.rdritcom.debian_version="13" \
-      com.rdritcom.apache2_version="2.4.65" \
+      com.rdritcom.apache2_version="2.4.67" \
       com.rdritcom.php_version="8.3.30" \
-      com.rdritcom.glpi_version="11.0.5"
+      com.rdritcom.glpi_version="11.0.7"
 
 RUN apt-get update \
     && apt-get install lsb-release ca-certificates curl -yqq \
